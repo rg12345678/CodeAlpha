@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Simple Social Media</h1>
+    </header>
+
+    <main>
+        <textarea id="post-content" placeholder="Write something..."></textarea>
+        <button onclick="createPost()">Post</button>
+
+        <div id="posts-container"></div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+textarea {
+    width: 80%;
+    height: 50px;
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin: 10px;
+}
+
+.post {
+    border: 1px solid #ddd;
+    padding: 10px;
+    margin: 10px;
+    border-radius: 5px;
+    text-align: left;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+const apiUrl = 'http://localhost:3000/api/posts';
+
+// Fetch posts from backend
+async function fetchPosts() {
+    const response = await fetch(apiUrl);
+    const posts = await response.json();
+    displayPosts(posts);
+}
+
+// Display posts
+function displayPosts(posts) {
+    const postsContainer = document.getElementById('posts-container');
+    postsContainer.innerHTML = '';
+    posts.forEach(post => {
+        const postElement = document.createElement('div');
+        postElement.className = 'post';
+        postElement.innerHTML = `
+            <p>${post.content}</p>
+            <button onclick="likePost('${post._id}')">Like (${post.likes})</button>
+        `;
+        postsContainer.appendChild(postElement);
+    });
+}
+
+// Create a new post
+async function createPost() {
+    const content = document.getElementById('post-content').value;
+    if (content.trim() === '') return alert('Please write something!');
+
+    await fetch(apiUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+    });
+
+    document.getElementById('post-content').value = '';
+    fetchPosts();
+}
+
+// Like a post
+async function likePost(id) {
+    await fetch(`${apiUrl}/${id}/like`, { method: 'PUT' });
+    fetchPosts();
+}
+
+// Initialize
+fetchPosts();
+
